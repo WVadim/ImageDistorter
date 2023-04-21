@@ -1,26 +1,26 @@
-from abstract_distortion import AbstractDistortion
 import numpy as np
 import cv2
+from abstract_distortion import AbstractDistortion
 
 
-class SaturationDistortion(AbstractDistortion):
-    name = "_saturation"
+class HueDistortion(AbstractDistortion):
+    name = "_hue"
 
     def __init__(
         self,
     ):
         super().__init__()
-        self._synonyms = ["intensity", "vividness", "chroma", "saturation"]
+        self._synonyms = ["hue", "tint", "shade", "color shift"]
         self._borders = {
-            "_INCREASE": {
-                "_SMALL": (0.8, 0.99),
-                "_MEDIUM": (0.6, 0.8),
-                "_LARGE": (0.4, 0.6),
-            },
             "_DECREASE": {
-                "_SMALL": (1.0, 1.2),
-                "_MEDIUM": (1.2, 1.4),
-                "_LARGE": (1.4, 1.6),
+                "_SMALL": (0, 10),
+                "_MEDIUM": (10, 30),
+                "_LARGE": (30, 60),
+            },
+            "_INCREASE": {
+                "_SMALL": (0, -10),
+                "_MEDIUM": (-10, -30),
+                "_LARGE": (-30, -60),
             },
         }
 
@@ -50,13 +50,9 @@ class SaturationDistortion(AbstractDistortion):
         return ":".join(keys_list), np.random.uniform(vals[0], vals[1])
 
     def __call__(self, image, original_image):
-        text, saturation = self._generate_sample()
+        text, hue_shift = self._generate_sample()
         text = self._generate_sentence(text)
-        distorted_image = np.float32(image)
-        hsv_image = cv2.cvtColor(
-            np.clip(distorted_image, 0, 255).astype(np.uint8), cv2.COLOR_BGR2HSV
-        )
-        h, s, v = cv2.split(hsv_image)
-        s = (s.astype(np.float32) * saturation).clip(0, 255).astype(np.uint8)
-        hsv_image = cv2.merge([h, s, v])
-        return cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR), text, original_image
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        hsv_image[:, :, 0] = np.mod(hsv_image[:, :, 0] + hue_shift, 180).astype(np.uint8)
+        distorted_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+        return distorted_image, text, original_image

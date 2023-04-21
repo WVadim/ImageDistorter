@@ -22,7 +22,7 @@ def save_image(image: Any, path: str):
     cv2.imwrite(path, bgr)
 
 
-distorter = ImageDistorter(number_of_effects_range=(2, 6))
+distorter = ImageDistorter(number_of_effects_range=(1, 1))
 
 original_rgb = load_image("a0001-jmac_DSC1459.dng")
 
@@ -35,6 +35,8 @@ distorted_rgb = np.clip(distorted_rgb, 0, 255).astype(np.uint8)
 original_rgb = np.clip(original_rgb, 0, 255).astype(np.uint8)
 # Create a figure with two subplots
 fig, (ax1, ax2) = plt.subplots(1, 2)
+
+fig.suptitle(" ".join(text))
 
 # Show the first image in the first subplot
 ax1.imshow(distorted_rgb)

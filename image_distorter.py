@@ -6,6 +6,8 @@ from rotation_distortion import RotationDistortion
 from saturation_distortion import SaturationDistortion
 from snp_noise_distortion import SaltAndPepperNoiseDistortion
 from vibrance_distortion import VibranceDistortion
+from hue_distortion import HueDistortion
+from jpeg_compression_distortion import JPEGCompressionDistortion
 import random
 from typing import Tuple
 
@@ -24,6 +26,8 @@ class ImageDistorter:
             "rotation": RotationDistortion(),
             "snp_noise": SaltAndPepperNoiseDistortion(),
             "vibrance": VibranceDistortion(),
+            "hue": HueDistortion(),
+            "jpeg_compression": JPEGCompressionDistortion(),
         }
         self._number_of_effects_range = number_of_effects_range
 

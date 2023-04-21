@@ -47,16 +47,18 @@ class VibranceDistortion(AbstractDistortion):
 
     def _generate_sample(self):
         keys_list, vals = self._sample_dicts_recursively(self._borders)
-        return ":".join(keys_list), np.random.normal(vals[0], vals[1])
+        return ":".join(keys_list), np.random.uniform(vals[0], vals[1])
 
     def __call__(self, image, original_image):
         text, vibrance = self._generate_sample()
+        print(vibrance)
         text = self._generate_sentence(text)
         distorted_image = np.float32(image)
-        lab_image = cv2.cvtColor(
-            np.clip(distorted_image, 0, 255).astype(np.uint8), cv2.COLOR_BGR2Lab
+        hsv_image = cv2.cvtColor(
+            np.clip(distorted_image, 0, 255).astype(np.uint8), cv2.COLOR_BGR2HSV
         )
-        l, a, b = cv2.split(lab_image)
-        b = (b.astype(np.float32) * vibrance).astype(np.uint8)
-        lab_image = cv2.merge([l, a, b])
-        return cv2.cvtColor(lab_image, cv2.COLOR_Lab2BGR), text, original_image
+        h, s, v = cv2.split(hsv_image)
+        s = (s.astype(np.float32) * vibrance).clip(0, 255).astype(np.uint8)
+        hsv_image = cv2.merge([h, s, v])
+        return cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR), text, original_image
+
